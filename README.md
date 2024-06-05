@@ -1,22 +1,209 @@
 # UI Lab 4
-![](terminal-icon.png)
-![](gui-icon.png)
+Result:
 
-Це одна з робіт, які доповнюють основний цикл лабораторних робіт #1-8 (проект **Banking**, [Netbeans](https://netbeans.org/)) з ООП.  Основна мета цих додаткових вправ - познайомитись з різними видами інтерфейсів користувача та засобами їх створення. Згадувані 'базові' роботи розміщено в [окремому репозиторії](https://github.com/liketaurus/OOP-JAVA) (якщо будете робити завдання на "4" або "5" раджу переглянути [діаграму класів](https://github.com/liketaurus/OOP-JAVA/blob/master/MyBank.png), аби розуміти які методи є у класів).
+![image](https://github.com/ppc-ntu-khpi/gui-matisse-ieni-nei/assets/113203792/a9d8d6fc-c7bf-4b2b-85e2-0ec96ab1de98)
 
-В ході роботи вам пропонується виконати **наступне завдання** - [Робота 4: GUI з Matisse](https://github.com/ppc-ntu-khpi/GUI-Lab2-Starter/blob/master/Lab%204%20-%20Matisse/Lab%204.md)
-  
-**Додаткове завдання** (для тих хто зробив все і прагне більшого): [дивіться тут](https://github.com/ppc-ntu-khpi/GUI-Lab2-Starter/blob/master/Lab%204%20-%20Matisse/Lab%20-%204%20-%20add.md)
+![image](https://github.com/ppc-ntu-khpi/gui-matisse-ieni-nei/assets/113203792/895416a8-de2e-4396-acbc-1ceec7cd9672)
 
-Всі необхідні бібліотеки містяться у теці [jars](https://github.com/ppc-ntu-khpi/GUI-Lab2-Starter/tree/master/jars). В тому числі - всі необхідні відкомпільовані класи з робіт 1-8 - файл [MyBank.jar](https://github.com/ppc-ntu-khpi/GUI-Lab2-Starter/blob/master/jars/MyBank.jar). Файл даних лежить у теці [data](https://github.com/ppc-ntu-khpi/GUI-Lab2-Starter/tree/master/data).
+![image](https://github.com/ppc-ntu-khpi/gui-matisse-ieni-nei/assets/113203792/ea81e4e4-0576-4551-8e1b-bdd96c28717a)
 
----
-**УВАГА! Не забуваємо здавати завдання через Google Classroom та вказувати посилання на створений для вас репозиторій!**
+![image](https://github.com/ppc-ntu-khpi/gui-matisse-ieni-nei/assets/113203792/70b37c32-3b87-43f6-8fef-869a5e1e0b5d)
 
-Також пам'ятайте, що ніхто не заважає вам редагувати файл README у вашому репозиторії😉.
+```MatisseDemo.java```:
+```java
+package com.mybank.tui;
 
-[![Gitter](https://badges.gitter.im/PPC-SE-2020/OOP.svg)](https://gitter.im/PPC-SE-2020/OOP?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+import com.mybank.data.DataSource;
+import com.mybank.domain.Account;
+import com.mybank.domain.Bank;
+import com.mybank.domain.CheckingAccount;
+import com.mybank.domain.Customer;
+import com.mybank.domain.SavingsAccount;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
-![](https://img.shields.io/badge/Made%20with-JAVA-red.svg)
-![](https://img.shields.io/badge/Made%20with-%20Netbeans-brightgreen.svg)
-![](https://img.shields.io/badge/Made%20at-PPC%20NTU%20%22KhPI%22-blue.svg) 
+public class MatisseDemo extends JFrame {
+
+    private JComboBox<String> clientComboBox;
+    private JButton showButton;
+    private JButton reportButton;
+    private JButton aboutButton;
+    private JTextPane logTextPane;
+    private JLabel instructionLabel;
+    private JScrollPane logPane;
+
+    public MatisseDemo() {
+        initComponents();
+        loadCustomersFromFile("test.dat");
+        populateComboBox();
+    }
+
+    private void initComponents() {
+        clientComboBox = new JComboBox<>();
+        showButton = new JButton();
+        reportButton = new JButton();
+        aboutButton = new JButton();
+        logTextPane = new JTextPane();
+        logPane = new JScrollPane();
+        instructionLabel = new JLabel();
+
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MyBank Clients");
+        setResizable(false);
+
+        showButton.setText("Show");
+        showButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                showButtonActionPerformed(evt);
+            }
+        });
+
+        reportButton.setText("Report");
+        reportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                reportButtonActionPerformed(evt);
+            }
+        });
+
+        aboutButton.setText("About");
+        aboutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                aboutButtonActionPerformed(evt);
+            }
+        });
+
+        logTextPane.setEditable(false);
+        logPane.setViewportView(logTextPane);
+
+        instructionLabel.setText("Choose a client name and press 'Show' button");
+
+        GroupLayout layout = new GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(logPane)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(clientComboBox, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(showButton)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(reportButton)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(aboutButton)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                        .addComponent(instructionLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(clientComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showButton)
+                                        .addComponent(reportButton)
+                                        .addComponent(aboutButton))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(logPane, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(instructionLabel)
+                                .addContainerGap())
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }
+
+    private void showButtonActionPerformed(ActionEvent evt) {
+        displayCustomerInfo();
+    }
+
+    private void reportButtonActionPerformed(ActionEvent evt) {
+        generateReport();
+    }
+
+    private void aboutButtonActionPerformed(ActionEvent evt) {
+        JOptionPane.showMessageDialog(this, "MyBank Client Application\nVersion 1.0", "About", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void loadCustomersFromFile(String filename) {
+        DataSource dataSource = new DataSource(filename);
+        try {
+            dataSource.loadData();
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    private void populateComboBox() {
+        for (int i = 0; i < Bank.getNumberOfCustomers(); i++) {
+            Customer customer = Bank.getCustomer(i);
+            clientComboBox.addItem(customer.getLastName() + ", " + customer.getFirstName());
+        }
+    }
+
+    private void displayCustomerInfo() {
+        int index = clientComboBox.getSelectedIndex();
+        if (index < 0) return;
+
+        Customer customer = Bank.getCustomer(index);
+        StringBuilder info = new StringBuilder();
+        info.append(customer.getFirstName()).append(" ").append(customer.getLastName())
+                .append(", customer #").append(index + 1).append("\n")
+                .append("-------------------------\n")
+                .append("Accounts:\n");
+
+        for (int i = 0; i < customer.getNumberOfAccounts(); i++) {
+            Account account = customer.getAccount(i);
+            if (account instanceof CheckingAccount) {
+                CheckingAccount ca = (CheckingAccount) account;
+                info.append("#").append(i).append(" - Checking: $").append(ca.getBalance())
+                        .append(", overdraft: $").append("Not available").append("\n");
+            } else if (account instanceof SavingsAccount) {
+                SavingsAccount sa = (SavingsAccount) account;
+                info.append("#").append(i).append(" - Savings: $").append(sa.getBalance())
+                        .append(", interest rate: ").append("Not available").append("\n");
+            }
+        }
+
+        logTextPane.setText(info.toString());
+    }
+
+    private void generateReport() {
+        StringBuilder report = new StringBuilder();
+        report.append("Bank Clients Report\n")
+                .append("====================\n")
+                .append("Total number of clients: ").append(Bank.getNumberOfCustomers()).append("\n");
+
+        for (int i = 0; i < Bank.getNumberOfCustomers(); i++) {
+            Customer customer = Bank.getCustomer(i);
+            report.append("\nCustomer: ").append(customer.getLastName()).append(", ").append(customer.getFirstName()).append("\n");
+
+            for (int j = 0; j < customer.getNumberOfAccounts(); j++) {
+                Account account = customer.getAccount(j);
+                if (account instanceof CheckingAccount) {
+                    report.append("    Checking Account: current balance is ").append(account.getBalance()).append("\n");
+                } else if (account instanceof SavingsAccount) {
+                    report.append("    Savings Account: current balance is ").append(account.getBalance()).append("\n");
+                }
+            }
+        }
+
+        logTextPane.setText(report.toString());
+    }
+
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new MatisseDemo().setVisible(true);
+            }
+        });
+    }
+}
+
+```
